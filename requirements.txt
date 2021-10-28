@@ -1,6 +1,9 @@
+bev
+connectome
 deep_pipe
 imageio
 lazycon
+lxml
 nibabel
 numpy
 opencv-python

@@ -1,3 +1,4 @@
+import cv2
 import os
 from os.path import join as jp
 from lxml import etree
@@ -5,8 +6,51 @@ from lxml import etree
 import numpy as np
 
 
-def id2root(xml_data_path, _id):
-    """Returns an ``etree`` root from xml entry corresponding to given ``_id``."""
+def get_nodules(_id, xml_dp):
+    root = id2root(xml_dp, _id)
+    expert_roots = root2expert_roots(root)
+    expert_nodules = [expert_root2nodules(expert_root) for expert_root in expert_roots]
+
+    return expert_nodules
+
+
+def nodules2centers(nodules, z_origin, z_spacing):
+    centers = []
+    for nodule in nodules:
+        nodule_indexes = []
+        for roi in nodule:
+            z = (roi[0] - z_origin) / z_spacing
+            for xy in roi[1]:
+                nodule_indexes.append([xy[0], xy[1], z])
+        centers.append(np.mean(nodule_indexes, axis=0))
+
+    return np.round(centers)
+
+
+def center2hit(center, rel_centers, r):
+    is_hit = False
+    for rel_center in rel_centers:
+        if np.linalg.norm(np.array(center) - np.array(rel_center)) <= r:
+            is_hit = True
+
+    return is_hit
+
+
+def fill3d(img3d, nodule, z_origin, z_spacing):
+    img3d = np.float32(img3d)
+
+    for roi in nodule:
+        z = int((roi[0] - z_origin) / z_spacing)
+        pts = np.int32([roi[1]])
+        img = np.zeros_like(img3d[..., z], dtype='float32').T
+
+        img3d[::, ::, z] += cv2.fillPoly(img.copy(), pts, 1).T
+
+    return np.clip(img3d, 0, 1)
+
+
+def id2root(xml_data_path, series_uid):
+    """Returns an ``etree`` root from xml entry corresponding to given ``series_uid``."""
     for int_dir in os.listdir(xml_data_path):
         int_path = jp(xml_data_path, int_dir)
         for xml_rpath in os.listdir(int_path):
@@ -24,7 +68,7 @@ def id2root(xml_data_path, _id):
 
             # comparing `_id` with current xml's id:
             for child in header_child:
-                if '{http://www.nih.gov}SeriesInstanceUid' == child.tag and _id == child.text:
+                if '{http://www.nih.gov}SeriesInstanceUid' == child.tag and series_uid == child.text:
                     return root
 
 
@@ -80,24 +124,3 @@ def expert_root2nodules(expert_root):
             nodules.append(rois)
 
     return nodules
-
-
-def nodules2centers(nodules, z_origin, z_spacing):
-    centers = []
-    for nodule in nodules:
-        nodule_indexes = []
-        for roi in nodule:
-            z = (roi[0] - z_origin) / z_spacing
-            for xy in roi[1]:
-                nodule_indexes.append([xy[0], xy[1], z])
-        centers.append(np.mean(nodule_indexes, axis=0))
-
-    return np.round(centers)
-
-def get_nodules(_id, xml_dp):
-    """Gets given expert delineation."""
-    root = id2root(xml_dp, _id)
-    expert_roots = root2expert_roots(root)
-    expert_nodules = [expert_root2nodules(expert_root) for expert_root in expert_roots]
-
-    return expert_nodules
