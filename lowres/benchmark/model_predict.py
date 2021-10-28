@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 from dpipe.predict.shape import add_extract_dims, patches_grid, divisible_shape
 from dpipe.predict.functional import preprocess
-from dpipe.medim.shape_ops import pad
+from dpipe.im.shape_ops import pad
 from dpipe.io import load
 from dpipe.torch.model import inference_step
 

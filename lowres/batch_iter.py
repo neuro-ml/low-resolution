@@ -3,10 +3,10 @@ from itertools import islice
 
 import numpy as np
 
-from dpipe.medim.itertools import make_chunks
-from dpipe.medim.patch import sample_box_center_uniformly
-from dpipe.medim.box import get_centered_box
-from dpipe.medim.shape_ops import crop_to_box
+from dpipe.itertools import make_chunks
+from dpipe.im.patch import sample_box_center_uniformly
+from dpipe.im.box import get_centered_box
+from dpipe.im.shape_ops import crop_to_box
 from dpipe.batch_iter import combine_to_arrays
 
 SPATIAL_DIMS = (-3, -2, -1)

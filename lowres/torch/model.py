@@ -3,7 +3,7 @@ from functools import partial
 import torch
 from torch.nn.functional import max_pool3d
 
-from dpipe.medim.utils import identity
+from dpipe.im.utils import identity
 from dpipe.torch.utils import sequence_to_var, to_np
 from dpipe.torch.model import optimizer_step
 from .torch_utils import get_one_batch_elem_from_seq

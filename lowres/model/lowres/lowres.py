@@ -4,7 +4,7 @@ import torch.nn as nn
 from skimage import measure
 
 from dpipe.torch import to_var
-from dpipe.medim.box import mask2bounding_box, box2slices, add_margin, limit_box
+from dpipe.im.box import mask2bounding_box, box2slices, add_margin, limit_box
 
 from .structural_blocks import PreActivation3dNoBN, ResBlock3dNoBN
 

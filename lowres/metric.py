@@ -8,7 +8,7 @@ import pandas as pd
 from skimage.measure import label
 
 from dpipe.io import load_json, save_json, load_pred
-from dpipe.medim.metrics import dice_score, fraction
+from dpipe.im.metrics import dice_score, fraction
 from dpipe.commands import load_from_folder
 
 from lowres.utils import get_pred, volume2diameter, np_sigmoid
