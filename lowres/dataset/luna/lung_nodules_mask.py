@@ -80,4 +80,4 @@ if __name__ == '__main__':
         try:
             save(lung_nodules_mask, dest / f'{series_uid}.npy.gz', compression=1, timestamp=0)
         except Exception as e:
-            print(f'Adding lungs_mask {series_uid} failed with {e.__class__.__name__}: {str(e)}.')
+            print(f'Adding lung nodules mask {series_uid} failed with {e.__class__.__name__}: {str(e)}.')
