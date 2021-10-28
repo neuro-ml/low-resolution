@@ -55,7 +55,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     source = Path(args.source)
-    dest = source.parent / 'LUNA16_processed' / 'lung_nodules_masks'
+    dest = source.parent / 'LUNA16_processed' / 'lung_nodules_mask'
     dest.mkdir(exist_ok=True, parents=True)
 
     nodules_df = pd.read_csv(source / 'annotations.csv')
