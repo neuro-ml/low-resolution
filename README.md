@@ -2,27 +2,8 @@
 Code release
 
 ## Table of Contents
-* [Requirements](#requirements)
 * [Repository Structure](#repository-structure)
 * [Experiment Reproduction](#experiment-reproduction)
-
-
-## Requirements
-- [Python](https://www.python.org) (v3.6 or later)
-- [Deep Pipe](https://github.com/neuro-ml/deep_pipe) (commit: [4383211ea312c098d710fbeacc05151e10a27e80](https://github.com/neuro-ml/deep_pipe/tree/4383211ea312c098d710fbeacc05151e10a27e80))
-- [imageio](https://pypi.org/project/imageio/) (v 2.8.0)
-- [NiBabel](https://pypi.org/project/nibabel/) (v3.0.2)
-- [NumPy](http://numpy.org/) (v1.17.0 or later)
-- [OpenCV python](https://pypi.org/project/opencv-python/) (v4.2.0.32)
-- [Pandas](https://pandas.pydata.org/) (v1.0.1 or later)
-- [pdp](https://pypi.org/project/pdp/) (v 0.3.0)
-- [pydicom](https://pypi.org/project/pydicom/) (v 1.4.2)
-- [resource-manager](https://pypi.org/project/resource-manager/) (v 0.11.1)
-- [SciPy library](https://www.scipy.org/scipylib/index.html) (v0.19.0 or later)
-- [scikit-image](https://scikit-image.org) (v0.15.0 or later)
-- [Simple ITK](http://www.simpleitk.org/) (v1.2.4)
-- [torch](https://pypi.org/project/torch/) (v1.1.0 or later)
-- [tqdm](https://tqdm.github.io) (v4.32.0 or later)
 
 ## Repository Structure
 ```
@@ -60,6 +41,15 @@ Alternatively pretrained ModelX8 (for LUNA16) could be found in
 
 Finally, the script `lowres/benchmark/benchmark_time.sh` can estimate the time, the given model spend to process the 
 chosen amount of scans. By default the whole dataset used, so the desired number can be specified inside `lowres/benchmark/model_predict.sh`. The single argument of the script -- the desired number of threads (e.g., `8`).
+
+## Installation
+Execute from the directory you want the repo to be installed:
+
+```
+git clone https://github.com/neuro-ml/low-resolution
+cd low-resolution
+pip install -e .
+```
 
 ## Experiment Reproduction
 To run a single experiment please follow the steps below:
