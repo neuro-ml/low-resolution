@@ -12,7 +12,7 @@ import pandas as pd
 
 from dpipe.io import load, save
 
-from lowres.dataset.luna.utils import get_nodules, nodules2centers, center2hit, fill3d
+from lowres.dataset.luna.bev.utils import get_nodules, nodules2centers, center2hit, fill3d
 
 
 REVERSE_IDS = [

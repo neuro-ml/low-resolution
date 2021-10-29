@@ -1,5 +1,5 @@
 # Accelerating 3D Medical Image Segmentation by Adaptive Small-Scale Target Localization
-Code release for the [paper](https://www.mdpi.com/2313-433X/7/2/35) B. Shirokikh, A. Shevtsov et al. "Accelerating 3D Medical Image Segmentation by Adaptive Small-Scale Target Localization".
+Code release for the [paper]
 
 <div align="center">
 <img src="https://user-images.githubusercontent.com/25771270/139200236-e20097b7-7a94-49b5-9be3-3af0411038b7.png" width="800">

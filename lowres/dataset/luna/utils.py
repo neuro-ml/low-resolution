@@ -1,126 +1,54 @@
-import cv2
-import os
-from os.path import join as jp
-from lxml import etree
+from pathlib import Path
+from typing import Sequence, Any
 
 import numpy as np
 
+from bev import Repository
+from bev.interface import Version
+from bev.utils import PathLike, HashNotFound
 
-def get_nodules(_id, xml_dp):
-    root = id2root(xml_dp, _id)
-    expert_roots = root2expert_roots(root)
-    expert_nodules = [expert_root2nodules(expert_root) for expert_root in expert_roots]
-
-    return expert_nodules
-
-
-def nodules2centers(nodules, z_origin, z_spacing):
-    centers = []
-    for nodule in nodules:
-        nodule_indexes = []
-        for roi in nodule:
-            z = (roi[0] - z_origin) / z_spacing
-            for xy in roi[1]:
-                nodule_indexes.append([xy[0], xy[1], z])
-        centers.append(np.mean(nodule_indexes, axis=0))
-
-    return np.round(centers)
+from connectome import CacheToDisk as Disk
+from connectome.cache import is_stable
+from connectome.serializers import NumpySerializer, JsonSerializer, DictSerializer
+from connectome.storage.storage import QueryError
 
 
-def center2hit(center, rel_centers, r):
-    is_hit = False
-    for rel_center in rel_centers:
-        if np.linalg.norm(np.array(center) - np.array(rel_center)) <= r:
-            is_hit = True
+_NO_ARG = object()
 
-    return is_hit
+REPOSITORY = Repository.from_here('../../../assets')
+LATEST_COMMIT = REPOSITORY.latest_version()
 
 
-def fill3d(img3d, nodule, z_origin, z_spacing):
-    img3d = np.float32(img3d)
-
-    for roi in nodule:
-        z = int((roi[0] - z_origin) / z_spacing)
-        pts = np.int32([roi[1]])
-        img = np.zeros_like(img3d[..., z], dtype='float32').T
-
-        img3d[::, ::, z] += cv2.fillPoly(img.copy(), pts, 1).T
-
-    return np.clip(img3d, 0, 1)
+@is_stable
+def glob(*parts: PathLike, version: Version = None) -> Sequence[Path]:
+    return REPOSITORY.glob(*parts, version=version)
 
 
-def id2root(xml_data_path, series_uid):
-    """Returns an ``etree`` root from xml entry corresponding to given ``series_uid``."""
-    for int_dir in os.listdir(xml_data_path):
-        int_path = jp(xml_data_path, int_dir)
-        for xml_rpath in os.listdir(int_path):
-            xml_path = jp(int_path, xml_rpath)
-
-            # read xml tree:
-            root = etree.parse(xml_path).getroot()
-
-            # searching for ResponseHeader:
-            for child in root:
-                if not isinstance(child, etree._Comment):
-                    if 'ResponseHeader' in child.tag:
-                        header_child = child
-                        break
-
-            # comparing `_id` with current xml's id:
-            for child in header_child:
-                if '{http://www.nih.gov}SeriesInstanceUid' == child.tag and series_uid == child.text:
-                    return root
+@is_stable
+def read(loader, *parts: PathLike, version: Version, default=_NO_ARG, **kwargs) -> Any:
+    try:
+        key = REPOSITORY.get_key(*parts, version=version)
+        return REPOSITORY.storage.load(loader, key, **kwargs)
+    except (QueryError, HashNotFound):
+        if default == _NO_ARG:
+            raise
+        return default
 
 
-def root2expert_roots(root):
-    """Returns list of roots corresponding to all experts sessions."""
-    rs_children = []
+def _default_serializer(serializers):
+    if serializers is None:
+        arrays = NumpySerializer({np.bool_: 1, np.int_: 1})
+        serializers = [
+            JsonSerializer(),
+            DictSerializer(serializer=arrays),
+            arrays,
+        ]
+    return serializers
 
-    for child in root:
-        if not isinstance(child, etree._Comment):
-            if 'readingSession' in child.tag:
-                rs_children.append(child)
 
-    return rs_children
-
-
-def expert_root2nodules(expert_root):
-    """
-    Returns ``nodules`` array from given expert root. Array has following structure:
-    nodules = [nodule_0, nodule_1, ...]
-    nodule_N = [roi_0, roi_1, ...]
-    roi_M = [z_coord, [xy_indexes_0, xy_indexes_1, ...]]
-    xy_indexes_K = [x_index, y_index]
-    """
-    nodules = []
-    for child1 in expert_root:
-
-        rois = []
-        if 'unblindedReadNodule' in child1.tag:  # in nodule
-
-            for child2 in child1:
-
-                if not isinstance(child2, etree._Comment):
-                    if 'roi' in child2.tag:
-
-                        z_coord, xy_indexes = 0, []
-                        for child3 in child2:  # in nodule roi
-                            if 'imageZposition' in child3.tag:
-                                z_coord = float(child3.text)
-                            if 'edgeMap' in child3.tag:
-
-                                xy_index = [0, 0]
-                                for child4 in child3:  # in edge map
-                                    if 'xCoord' in child4.tag:
-                                        xy_index[0] = int(child4.text)
-                                    if 'yCoord' in child4.tag:
-                                        xy_index[1] = int(child4.text)
-                                xy_indexes.append(xy_index)
-
-                        roi = [z_coord, xy_indexes]
-                        rois.append(roi)
-
-        if len(rois) > 0:
-            nodules.append(rois)
-
-    return nodules
+class CacheToDisk(Disk):
+    def __init__(self, names, serializers=None, **kwargs):
+        super().__init__(
+            REPOSITORY.cache, REPOSITORY.storage,
+            serializer=_default_serializer(serializers), names=names, **kwargs
+        )
