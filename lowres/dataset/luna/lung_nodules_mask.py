@@ -12,7 +12,7 @@ import pandas as pd
 
 from dpipe.io import load, save
 
-from .utils import get_nodules, nodules2centers, center2hit, fill3d
+from lowres.dataset.luna.utils import get_nodules, nodules2centers, center2hit, fill3d
 
 
 REVERSE_IDS = [
@@ -66,18 +66,18 @@ if __name__ == '__main__':
 
         abs_coords = nodules[['coordX', 'coordY', 'coordZ']].values
 
-        characteristics = ('origin', 'spacing', 'shape')
-        origin, spacing, shape = map(lambda x: load(dest.parent / 'image' / series_uid / f'{x}.json'), characteristics)
-
-        if series_uid in REVERSE_IDS:
-            abs_coords[:, :2] = 2 * origin[:2] - abs_coords[:, :2]
-
-        rel_coords = list(map(lambda x: np.int64(np.round((x - origin) / spacing)), abs_coords))
-
-        expert_nodules = get_nodules(series_uid, source.parent / 'tcia-lidc-xml')
-        lung_nodules_mask = nodules2target(expert_nodules, rel_coords, origin, spacing, shape)
-
         try:
+            chars = ('origin', 'spacing', 'shape')
+            origin, spacing, shape = map(lambda x: np.array(load(dest.parent / f'image/{series_uid}/{x}.json')), chars)
+
+            if series_uid in REVERSE_IDS:
+                abs_coords[:, :2] = 2 * origin[:2] - abs_coords[:, :2]
+
+            rel_coords = list(map(lambda x: np.int64(np.round((x - origin) / spacing)), abs_coords))
+
+            expert_nodules = get_nodules(series_uid, source / 'tcia-lidc-xml')
+            lung_nodules_mask = nodules2target(expert_nodules, rel_coords, origin, spacing, shape)
+
             save(lung_nodules_mask, dest / f'{series_uid}.npy.gz', compression=1, timestamp=0)
         except Exception as e:
             print(f'Adding lung nodules mask {series_uid} failed with {e.__class__.__name__}: {str(e)}.')

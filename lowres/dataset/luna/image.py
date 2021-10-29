@@ -27,15 +27,15 @@ if __name__ == '__main__':
 
             if (dest / series_uid).exists():
                 continue
-            else:
-                save_path = dest / series_uid
-                save_path.mkdir()
 
             try:
                 itk_image = SimpleITK.ReadImage(str(series_path))
 
                 image = np.swapaxes(SimpleITK.GetArrayFromImage(itk_image), 0, 2)
                 origin, spacing = map(np.array, (itk_image.GetOrigin(), itk_image.GetSpacing()))
+
+                save_path = dest / series_uid
+                save_path.mkdir()
 
                 save(image, save_path / f'image.npy.gz', compression=1, timestamp=0)
                 save(origin, save_path / 'origin.json')
