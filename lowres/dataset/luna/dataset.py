@@ -22,6 +22,9 @@ class LUNA(Source):
     def shape(i, _image):
         return read(load_json, f'image/{i}/shape.json', version=_image)
 
+    def subset(i, _image):
+        return read(load_json, f'image/{i}/subset.json', version=_image)
+
     def image(i, _image):
         return read(load, f'image/{i}/image.npy.gz', version=_image, ext='.npy.gz')
 

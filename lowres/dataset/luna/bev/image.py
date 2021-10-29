@@ -41,5 +41,6 @@ if __name__ == '__main__':
                 save(origin, save_path / 'origin.json')
                 save(image.shape, save_path / 'shape.json')
                 save(spacing, save_path / 'spacing.json')
+                save(f'subset{i}', save_path / 'subset.json')
             except Exception as e:
                 print(f'Adding image {series_uid} failed with {e.__class__.__name__}: {str(e)}.')

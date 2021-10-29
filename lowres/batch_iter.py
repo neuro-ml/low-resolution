@@ -9,6 +9,7 @@ from dpipe.im.box import get_centered_box
 from dpipe.im.shape_ops import crop_to_box
 from dpipe.batch_iter import combine_to_arrays
 
+
 SPATIAL_DIMS = (-3, -2, -1)
 
 
