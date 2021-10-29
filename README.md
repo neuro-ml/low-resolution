@@ -61,7 +61,7 @@ After all the archives were succesfully downloaded, they need to be unpacked ins
 7za x *.zip
 ```
 
-### Arranging
+#### Arranging
 
 Experimention with the raw data is not so handy, so we will use [bev](https://github.com/neuro-ml/bev) library in order to prepare it. The upsides of using the library are given in the README.
 
