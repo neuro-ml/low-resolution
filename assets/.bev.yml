@@ -1,3 +1,5 @@
-station:
+neuro:
   storage:
-    - root: /mount/hdd/personal/storage
+    - root: /nmnt/x4-hdd/personal/storage
+
+  cache: /nmnt/x4-ssd/personal/cache
