@@ -38,6 +38,6 @@ def extract_patch(inputs, x_patch_size, y_patch_size):
     x_spatial_box = get_centered_box(center, x_patch_size)
     y_spatial_box = get_centered_box(center, y_patch_size)
 
-    x_patch = crop_to_box(x, box=x_spatial_box, axes=SPATIAL_DIMS, padding_values=np.min(x))
-    y_patch = crop_to_box(y, box=y_spatial_box, axes=SPATIAL_DIMS, padding_values=0)
+    x_patch = crop_to_box(x, box=x_spatial_box, axis=SPATIAL_DIMS, padding_values=np.min(x))
+    y_patch = crop_to_box(y, box=y_spatial_box, axis=SPATIAL_DIMS, padding_values=0)
     return x_patch, y_patch
