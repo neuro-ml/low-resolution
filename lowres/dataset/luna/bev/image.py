@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-from tqdm import trange
+from tqdm import trange, tqdm
 
 import SimpleITK
 
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     dest.mkdir(exist_ok=True, parents=True)
 
     for i in trange(10):
-        for series_path in (source / f'subset{i}').glob('*.mhd'):
+        for series_path in tqdm((source / f'subset{i}').glob('*.mhd')):
             series_uid = series_path.name[:-4]
 
             if (dest / series_uid).exists():

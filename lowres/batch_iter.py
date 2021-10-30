@@ -1,26 +1,13 @@
 import random
-from itertools import islice
 
 import numpy as np
 
-from dpipe.itertools import make_chunks
 from dpipe.im.patch import sample_box_center_uniformly
 from dpipe.im.box import get_centered_box
 from dpipe.im.shape_ops import crop_to_box
-from dpipe.batch_iter import combine_to_arrays
 
 
 SPATIAL_DIMS = (-3, -2, -1)
-
-
-def infinite(source, *transformers, batch_size, batches_per_epoch, combiner=combine_to_arrays):
-    def pipeline():
-        for entry in source:
-            for transformer in transformers:
-                entry = transformer(entry)
-            yield entry
-
-    return lambda: islice(map(combiner, make_chunks(pipeline(), batch_size, False)), batches_per_epoch)
 
 
 def sample_center_uniformly(shape, patch_size, spatial_dims):

@@ -6,7 +6,8 @@ from torch.nn.functional import max_pool3d
 from dpipe.im.utils import identity
 from dpipe.torch.utils import sequence_to_var, to_np
 from dpipe.torch.model import optimizer_step
-from .torch_utils import get_one_batch_elem_from_seq
+
+from .utils import get_one_batch_elem_from_seq
 
 
 def train_step_with_x8(*inputs, architecture, criterion, optimizer, scale_factor: int = None, **optimizer_params):

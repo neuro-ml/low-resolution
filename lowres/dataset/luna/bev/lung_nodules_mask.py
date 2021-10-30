@@ -5,7 +5,7 @@
 import argparse
 from pathlib import Path
 
-from tqdm import tqdm
+from tqdm import trange, tqdm
 
 import numpy as np
 import pandas as pd
@@ -60,24 +60,30 @@ if __name__ == '__main__':
 
     nodules_df = pd.read_csv(source / 'annotations.csv')
 
-    for series_uid, nodules in tqdm(nodules_df.groupby('seriesuid')):
-        if (dest / f'{series_uid}.npy.gz').exists():
-            continue
+    for i in trange(10):
+        for series_path in tqdm((source / f'subset{i}').glob('*.mhd')):
+            series_uid = series_path.name[:-4]
 
-        abs_coords = nodules[['coordX', 'coordY', 'coordZ']].values
+            if (dest / f'{series_uid}.npy.gz').exists():
+                continue
 
-        try:
-            chars = ('origin', 'spacing', 'shape')
-            origin, spacing, shape = map(lambda x: np.array(load(dest.parent / f'image/{series_uid}/{x}.json')), chars)
+            series_df = nodules_df[nodules_df.seriesuid == series_uid]
 
-            if series_uid in REVERSE_IDS:
-                abs_coords[:, :2] = 2 * origin[:2] - abs_coords[:, :2]
+            abs_coords = series_df[['coordX', 'coordY', 'coordZ']].values
 
-            rel_coords = list(map(lambda x: np.int64(np.round((x - origin) / spacing)), abs_coords))
+            try:
+                chars = ('origin', 'spacing', 'shape')
+                origin, spacing, shape = map(lambda x: np.array(load(dest.parent / f'image/{series_uid}/{x}.json')),
+                                             chars)
 
-            expert_nodules = get_nodules(series_uid, source / 'tcia-lidc-xml')
-            lung_nodules_mask = nodules2target(expert_nodules, rel_coords, origin, spacing, shape)
+                if series_uid in REVERSE_IDS:
+                    abs_coords[:, :2] = 2 * origin[:2] - abs_coords[:, :2]
 
-            save(lung_nodules_mask, dest / f'{series_uid}.npy.gz', compression=1, timestamp=0)
-        except Exception as e:
-            print(f'Adding lung nodules mask {series_uid} failed with {e.__class__.__name__}: {str(e)}.')
+                rel_coords = list(map(lambda x: np.int64(np.round((x - origin) / spacing)), abs_coords))
+
+                expert_nodules = get_nodules(series_uid, source / 'tcia-lidc-xml')
+                lung_nodules_mask = nodules2target(expert_nodules, rel_coords, origin, spacing, shape)
+
+                save(lung_nodules_mask, dest / f'{series_uid}.npy.gz', compression=1, timestamp=0)
+            except Exception as e:
+                print(f'Adding lung nodules mask {series_uid} failed with {e.__class__.__name__}: {str(e)}.')

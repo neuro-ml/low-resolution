@@ -43,7 +43,7 @@ class UpBlock(nn.Module):
         super().__init__()
 
         self.up = nn.ConvTranspose3d(in_ch, in_ch, 2, stride=2)
-        self.conv1 = PreActivation3d(in_channels=in_ch+skip_ch, out_channels=out_ch,
+        self.conv1 = PreActivation3d(in_channels=in_ch + skip_ch, out_channels=out_ch,
                                      kernel_size=3, padding=1, bias=False)
         self.conv2 = PreActivation3d(in_channels=out_ch, out_channels=out_ch, kernel_size=3, padding=1)
 
