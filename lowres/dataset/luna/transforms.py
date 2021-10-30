@@ -88,10 +88,8 @@ class MakeCentersNComponents(Transform):
 
     cc = _cc
 
-    @collect
     def lung_nodules_centers(_cc):
-        for l in range(1, int(_cc.max() + 1)):
-            yield np.argwhere(_cc == l)
+        return dict((l, np.argwhere(_cc == l)) for l in range(1, int(_cc.max() + 1)))
 
     def n_lung_nodules(_cc):
         return int(_cc.max())

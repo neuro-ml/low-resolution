@@ -23,7 +23,11 @@ def center_choice(inputs, y_patch_size, nonzero_fraction=0.5, tumor_sampling=Tru
 
     y_patch_size = np.array(y_patch_size)
     if len(centers) > 0 and np.random.uniform() < nonzero_fraction:
-        center = random.choice(random.choice(centers)) if tumor_sampling else random.choice(centers)
+        if tumor_sampling:
+            cc = random.choice(list(centers.keys()))
+            center = random.choice(centers[cc])
+        else:
+            center = random.choice(np.vstack(list(centers.values())))
     else:
         center = sample_center_uniformly(y.shape, patch_size=y_patch_size, spatial_dims=SPATIAL_DIMS)
 
